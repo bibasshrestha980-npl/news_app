@@ -9,7 +9,6 @@ class OnboardingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
@@ -22,7 +21,7 @@ class OnboardingScreen extends StatelessWidget {
                   width: double.infinity,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(24),
-                    color: Colors.grey.shade50,
+                    color: Theme.of(context).cardColor,
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(24),
@@ -43,7 +42,6 @@ class OnboardingScreen extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
                   height: 1.3,
                 ),
               ),

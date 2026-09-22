@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:news_app/common/common_colors.dart';
 import 'package:news_app/providers/news_provider.dart';
+import 'package:news_app/providers/theme_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -31,6 +32,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = context.watch<ThemeProvider>().isDarkMode;
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -51,6 +54,15 @@ class _CategoryScreenState extends State<CategoryScreen> {
             ),
           ],
         ),
+        actions: [
+          IconButton(
+            icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
+            tooltip: isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode',
+            onPressed: () {
+              context.read<ThemeProvider>().toggleTheme();
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -79,12 +91,12 @@ class _CategoryScreenState extends State<CategoryScreen> {
                             .read<NewsProvider>()
                             .getCategoryNews(widget.categoryName)
                             .then((_) {
-                          if (mounted) {
-                            setState(() {
-                              _isLoading = false;
+                              if (mounted) {
+                                setState(() {
+                                  _isLoading = false;
+                                });
+                              }
                             });
-                          }
-                        });
                       },
                       child: const Text("Retry"),
                     ),
@@ -94,9 +106,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
             }
 
             return RefreshIndicator(
-              onRefresh: () => context
-                  .read<NewsProvider>()
-                  .getCategoryNews(widget.categoryName),
+              onRefresh: () => context.read<NewsProvider>().getCategoryNews(
+                widget.categoryName,
+              ),
               child: ListView.builder(
                 itemCount: provider.categoryNews.length,
                 itemBuilder: (context, index) =>

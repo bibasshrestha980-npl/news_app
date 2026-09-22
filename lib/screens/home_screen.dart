@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:news_app/common/common_colors.dart';
 import 'package:news_app/data/category_list.dart';
 import 'package:news_app/providers/news_provider.dart';
+import 'package:news_app/providers/theme_provider.dart';
 import 'package:news_app/screens/category_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -24,10 +25,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = context.watch<ThemeProvider>().isDarkMode;
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
         title: const Row(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text("World", style: TextStyle(fontWeight: FontWeight.bold)),
@@ -40,6 +44,15 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
+        actions: [
+          IconButton(
+            icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
+            tooltip: isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode',
+            onPressed: () {
+              context.read<ThemeProvider>().toggleTheme();
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10),
