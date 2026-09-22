@@ -60,40 +60,86 @@ class _HomeScreenState extends State<HomeScreen> {
           spacing: 20,
           children: [
             SizedBox(
-              height: 100,
+              height: 95,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: categories.length,
                 itemBuilder: (context, index) {
+                  final category = categories[index];
                   return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 6),
                     child: GestureDetector(
                       onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                CategoryScreen(categoryName: categories[index]),
+                            builder: (context) => CategoryScreen(
+                              categoryName: category.categoryName,
+                            ),
                           ),
                         );
                       },
                       child: Container(
+                        width: 140,
+                        height: 95,
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [AppColors.primary, Colors.redAccent],
-                          ),
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(16),
                         ),
-                        width: 150,
-                        height: 100,
-                        child: Center(
-                          child: Text(
-                            categories[index],
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              // Category related background image
+                              Image.network(
+                                category.image,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    decoration: const BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          AppColors.primary,
+                                          Colors.redAccent,
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                              // Dark overlay for text readability
+                              Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      Colors.black.withValues(alpha: 0.2),
+                                      Colors.black.withValues(alpha: 0.65),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              // Category Name
+                              Center(
+                                child: Text(
+                                  category.categoryName,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 0.5,
+                                    shadows: [
+                                      Shadow(
+                                        color: Colors.black54,
+                                        blurRadius: 4,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),

@@ -39,10 +39,7 @@ class MyApp extends StatelessWidget {
           foregroundColor: Colors.black,
           elevation: 0,
         ),
-        cardTheme: const CardThemeData(
-          color: Colors.white,
-          elevation: 2,
-        ),
+        cardTheme: const CardThemeData(color: Colors.white, elevation: 2),
       ),
       darkTheme: ThemeData(
         useMaterial3: true,
@@ -54,10 +51,7 @@ class MyApp extends StatelessWidget {
           foregroundColor: Colors.white,
           elevation: 0,
         ),
-        cardTheme: const CardThemeData(
-          color: Color(0xFF1E1E1E),
-          elevation: 2,
-        ),
+        cardTheme: const CardThemeData(color: Color(0xFF1E1E1E), elevation: 2),
       ),
       scrollBehavior: const MaterialScrollBehavior().copyWith(
         dragDevices: {
