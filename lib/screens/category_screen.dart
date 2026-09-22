@@ -14,12 +14,18 @@ class CategoryScreen extends StatefulWidget {
 }
 
 class _CategoryScreenState extends State<CategoryScreen> {
+  bool _isLoading = true;
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      context.read<NewsProvider>().getCategoryNews(widget.categoryName);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await context.read<NewsProvider>().getCategoryNews(widget.categoryName);
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     });
   }
 
@@ -50,23 +56,52 @@ class _CategoryScreenState extends State<CategoryScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 10),
         child: Consumer<NewsProvider>(
           builder: (context, provider, child) {
-            if (provider.isCategoryNewsLoading) {
+            if (_isLoading || provider.isCategoryNewsLoading) {
               return const Center(child: CircularProgressIndicator());
             }
 
             if (provider.categoryNews.isEmpty) {
-              return const Center(
-                child: Text(
-                  "No news found for this category.",
-                  style: TextStyle(fontSize: 16, color: Colors.grey),
+              return Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      "No news found for this category.",
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                    ),
+                    const SizedBox(height: 12),
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _isLoading = true;
+                        });
+                        context
+                            .read<NewsProvider>()
+                            .getCategoryNews(widget.categoryName)
+                            .then((_) {
+                          if (mounted) {
+                            setState(() {
+                              _isLoading = false;
+                            });
+                          }
+                        });
+                      },
+                      child: const Text("Retry"),
+                    ),
+                  ],
                 ),
               );
             }
 
-            return ListView.builder(
-              itemCount: provider.categoryNews.length,
-              itemBuilder: (context, index) =>
-                  NewsCard(article: provider.categoryNews[index]),
+            return RefreshIndicator(
+              onRefresh: () => context
+                  .read<NewsProvider>()
+                  .getCategoryNews(widget.categoryName),
+              child: ListView.builder(
+                itemCount: provider.categoryNews.length,
+                itemBuilder: (context, index) =>
+                    NewsCard(article: provider.categoryNews[index]),
+              ),
             );
           },
         ),
@@ -155,13 +190,11 @@ class NewsImage extends StatelessWidget {
 
     final proxyWidth = width.isFinite ? (width * 2).round() : 600;
     final proxyHeight = width.isFinite ? (height * 2).round() : 300;
-    // Retry through the image proxy if the publisher image cannot load.
     final proxyUrl =
         'https://images.weserv.nl/?url=${Uri.encodeComponent(originalUrl)}&w=$proxyWidth&h=$proxyHeight&fit=cover';
 
     Widget proxyImage() => Image.network(
       proxyUrl,
-      webHtmlElementStrategy: WebHtmlElementStrategy.prefer,
       height: height,
       width: width,
       fit: BoxFit.cover,
@@ -170,8 +203,6 @@ class NewsImage extends StatelessWidget {
 
     return Image.network(
       originalUrl,
-      // Browser image elements can display publisher images without CORS headers.
-      webHtmlElementStrategy: WebHtmlElementStrategy.prefer,
       height: height,
       width: width,
       fit: BoxFit.cover,
@@ -199,182 +230,5 @@ Future<void> openArticle(
   if (context.mounted) {
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(message)));
-  }
-}
-
-class NewsDetailScreen extends StatelessWidget {
-  final Map<String, dynamic> news;
-
-  const NewsDetailScreen({super.key, required this.news});
-
-  @override
-  Widget build(BuildContext context) {
-    final title = news['title']?.toString() ?? 'No Title';
-    final description = news['description']?.toString() ?? '';
-    final content = news['content']?.toString() ?? '';
-    final author = news['author']?.toString();
-    final sourceName = news['source'] is Map
-        ? news['source']['name']?.toString()
-        : null;
-    final publishedAt = news['publishedAt']?.toString();
-    final url = news['url']?.toString();
-    final imageUrl = news['urlToImage'];
-
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      appBar: AppBar(
-        backgroundColor: AppColors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppColors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          sourceName ?? 'Article Details',
-          style: const TextStyle(
-            color: AppColors.black,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        centerTitle: true,
-        actions: [
-          if (url != null && url.isNotEmpty)
-            IconButton(
-              icon: const Icon(Icons.open_in_browser, color: AppColors.newsRed),
-              tooltip: 'Open in browser',
-              onPressed: () => openArticle(
-                context,
-                url,
-                mode: LaunchMode.externalApplication,
-              ),
-            ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: NewsImage(
-                url: imageUrl?.toString(),
-                height: 240,
-                width: double.infinity,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                if (sourceName != null && sourceName.isNotEmpty)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.newsRed,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      sourceName,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                if (sourceName != null && sourceName.isNotEmpty)
-                  const SizedBox(width: 10),
-                if (publishedAt != null && publishedAt.isNotEmpty)
-                  Text(
-                    publishedAt.length >= 10
-                        ? publishedAt.substring(0, 10)
-                        : publishedAt,
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: AppColors.black,
-                height: 1.3,
-              ),
-            ),
-            const SizedBox(height: 10),
-            if (author != null && author.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12.0),
-                child: Text(
-                  'By $author',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontStyle: FontStyle.italic,
-                    color: Colors.grey.shade700,
-                  ),
-                ),
-              ),
-
-            const Divider(),
-            const SizedBox(height: 12),
-            if (description.isNotEmpty)
-              Text(
-                description,
-                style: const TextStyle(
-                  fontSize: 15,
-                  height: 1.5,
-                  color: Colors.black87,
-                ),
-              ),
-            const SizedBox(height: 16),
-            if (content.isNotEmpty && content != description)
-              Text(
-                content,
-                style: TextStyle(
-                  fontSize: 14,
-                  height: 1.5,
-                  color: Colors.grey.shade800,
-                ),
-              ),
-            const SizedBox(height: 32),
-            if (url != null && url.isNotEmpty)
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.newsRed,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  icon: const Icon(Icons.launch, color: Colors.white),
-                  label: const Text(
-                    'Read Full Article on Web',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  onPressed: () => openArticle(
-                    context,
-                    url,
-                    mode: LaunchMode.externalApplication,
-                  ),
-                ),
-              ),
-            const SizedBox(height: 24),
-          ],
-        ),
-      ),
-    );
   }
 }
