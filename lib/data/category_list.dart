@@ -1,4 +1,4 @@
-List<String> categories = [
+const categories = [
   "Technology",
   "Business",
   "Sports",

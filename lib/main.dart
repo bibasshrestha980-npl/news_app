@@ -1,11 +1,14 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-
-import 'screens/onboarding_screen.dart';
+import 'package:news_app/providers/news_provider.dart';
+import 'package:news_app/screens/onboarding_screen.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(create: (_) => NewsProvider(), child: const MyApp()),
+  );
 }
 
 class MyApp extends StatelessWidget {

@@ -1,17 +1,29 @@
-# news_app
+# News App
 
-A new Flutter project.
+A Flutter app for browsing trending US headlines and news by category.
+Tap an article to open it in your browser.
 
-## Getting Started
+## Run
 
-This project is a starting point for a Flutter application.
+```sh
+flutter pub get
+flutter run
+```
 
-A few resources to get you started if this is your first Flutter project:
+The NewsAPI key is configured in `lib/providers/news_provider.dart`.
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+## Project structure
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- `lib/screens/`: onboarding, home, and category screens. Shared article widgets, link handling, and the article detail screen are kept in `category_screen.dart`.
+- `lib/providers/`: news fetching and loading state.
+- `lib/common/`: app colors.
+- `lib/data/`: available news categories.
+- `assets/`: app images.
+
+## Checks
+
+```sh
+dart format lib test
+flutter analyze
+flutter test
+```

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../common/common_colors.dart';
-import 'home_screen.dart';
+import 'package:news_app/common/common_colors.dart';
+import 'package:news_app/screens/home_screen.dart';
 
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});
@@ -16,7 +16,6 @@ class OnboardingScreen extends StatelessWidget {
           child: Column(
             children: [
               const SizedBox(height: 10),
-              // Top Logo/Image with rounded corners
               Expanded(
                 flex: 5,
                 child: Container(
@@ -38,7 +37,6 @@ class OnboardingScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 28),
-              // Heading
               const Text(
                 "Bringing the world's news\nto your fingertips",
                 textAlign: TextAlign.center,
@@ -50,7 +48,6 @@ class OnboardingScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              // Subtitle
               Text(
                 "Take your time, there's a world of stories waiting for you.",
                 textAlign: TextAlign.center,
@@ -61,7 +58,6 @@ class OnboardingScreen extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              // Get Started Button
               SizedBox(
                 width: double.infinity,
                 height: 52,
